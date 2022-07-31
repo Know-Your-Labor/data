@@ -1,6 +1,3 @@
-const { resolve } = require('path');
-const fs = require('fs');
-const { Console } = require('node:console');
 const puppeteer = require('puppeteer');
 const extract_logic = require('./extraction');
 
@@ -42,7 +39,8 @@ async function get_brands(brand_type) {
 
 async function get_companies(brand) {
     return await get_data(base+brand['url'], extract_logic.extract_company).then( (ret) => {
-        console.log("Found " + ret.length + " companies for " + brand["title"])
+        // console.log("Found " + ret.length + " companies for " + brand["title"])
+        console.log(ret);
         return ret
     }).catch(console.error);
 }
@@ -51,20 +49,18 @@ async function run() {
     brand_types = await get_brand_types()
     for(var i = 0; i < brand_types.length; i++) {
         brands = await get_brands(brand_types[i])
-        // for(var ii = 0; ii < brands.length; ii++) {
-        //     companies = await get_companies(brands[ii]);
-        //     console.log(companies);
-        //     pause(2000);
-        // }
-        console.log(brand_types[i])
-        console.log(brands[0])
+        for(var ii = 0; ii < brands.length; ii++) {
+            companies = await get_companies(brands[ii]);
+            console.log(companies);
+            pause(2000);
+        }
         pause(1500);
     }
 }
 
-run()
-// get_company({
-//     url: '/wiki/Tylenol_(brand)',
-//     title: 'Tylenol (brand)',
-//     section: 'Tylenol'
-// })
+// run()
+get_companies({
+    url: '/wiki/Tylenol_(brand)',
+    title: 'Tylenol (brand)',
+    section: 'Tylenol'
+})
