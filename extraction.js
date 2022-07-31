@@ -67,25 +67,27 @@ function extract_company() {
     for(var i = 0; i < company_selectors.length; i++) {
         company = company_selectors[i];
         if(company === null) continue;
-        const link = company.nextElementSibling.querySelectorAll('a')
+        const links = company.nextElementSibling.querySelectorAll('a')
         const text = company.nextElementSibling.innerText;
 
-        const link_title = link.text;
-        const link_url = link.href;
-        if(link_title && link_title.includes('Edit')) return;
-        if(
-            link_url && (
-            link_url.includes('action=edit') ||
-            link_url.includes('/wiki/Wikipedia') ||
-            link_url.includes('.jpg') ||
-            link_url.includes('.png'))) return;
-
-        ret.push({
-            url: link_url,
-            title: link_title,
-            type: company_type_str,
-            text: text
-        });
+        links.forEach( (link) => {
+            const link_title = link.getAttribute('title');
+            const link_url = link.getAttribute('href');
+            if(link_title && link_title.includes('Edit')) return;
+            if(
+                link_url && (
+                link_url.includes('action=edit') ||
+                link_url.includes('/wiki/Wikipedia') ||
+                link_url.includes('.jpg') ||
+                link_url.includes('.png'))) return;
+    
+            ret.push({
+                url: link_url,
+                title: link_title,
+                type: company_type_str,
+                text: text
+            });
+        })
     };
 
     return ret;
