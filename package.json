@@ -2,7 +2,7 @@
   "name": "data",
   "version": "1.0.0",
   "description": "## Product metadata and list of controversies (wikipedia)",
-  "main": "Main.js",
+  "main": "main.js",
   "engines" : { 
     "npm" : ">=7.0.0",
     "node" : ">=16.0.0"
