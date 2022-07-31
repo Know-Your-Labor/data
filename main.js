@@ -38,8 +38,18 @@ async function get_brands(brand_type) {
 }
 
 async function get_companies(brand) {
-    return await get_data(base+brand['url'], extract_logic.extract_company).then( (ret) => {
-        // console.log("Found " + ret.length + " companies for " + brand["title"])
+    let ret = await get_data(base+brand['url'], extract_logic.extract_company).catch(console.error);
+    const ret_length = ret.length;
+    for(var i = 0; i < ret_length; i++) {
+        let companies = await get_companies(ret[i])
+        ret.push(...companies);
+    }
+    return ret
+}
+
+async function get_all_companies(brand) {
+    return await get_companies(brand).then( (ret) => {
+        console.log("Found " + ret.length + " companies for " + brand["title"])
         console.log(ret);
         return ret
     }).catch(console.error);
@@ -50,7 +60,7 @@ async function run() {
     for(var i = 0; i < brand_types.length; i++) {
         brands = await get_brands(brand_types[i])
         for(var ii = 0; ii < brands.length; ii++) {
-            companies = await get_companies(brands[ii]);
+            companies = await get_all_companies(brands[ii]);
             console.log(companies);
             pause(2000);
         }
@@ -59,7 +69,7 @@ async function run() {
 }
 
 // run()
-get_companies({
+get_all_companies({
     url: '/wiki/Tylenol_(brand)',
     title: 'Tylenol (brand)',
     section: 'Tylenol'

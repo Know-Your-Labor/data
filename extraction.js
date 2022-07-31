@@ -50,7 +50,6 @@ function extract() {
 function extract_company() {
     let ret = [];
 
-    let company_type = document.evaluate("//th[contains(., 'Type')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext();
     let company_selectors = [];
     company_selectors.push(document.evaluate("//th[contains(., 'Parent')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext());
     company_selectors.push(document.evaluate("//th[contains(., 'Produced')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext());
@@ -58,10 +57,6 @@ function extract_company() {
     company_selectors.push(document.evaluate("//th[contains(., 'Manufacturer')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext());
     company_selectors.push(document.evaluate("//th[contains(., 'Company')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext());
     company_selectors.push(document.evaluate("//th[contains(., 'Created By')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext());
-
-    var company_type_str = undefined;
-    if(company_type !== null)
-        company_type_str = company_type.nextElementSibling.innerText
 
     // extract data
     for(var i = 0; i < company_selectors.length; i++) {
@@ -84,7 +79,6 @@ function extract_company() {
             ret.push({
                 url: link_url,
                 title: link_title,
-                type: company_type_str,
                 text: text
             });
         })
