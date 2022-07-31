@@ -1,0 +1,22 @@
+{
+  "name": "data",
+  "version": "1.0.0",
+  "description": "## Product metadata and list of controversies (wikipedia)",
+  "main": "Main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Know-Your-Labor/data.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Know-Your-Labor/data/issues"
+  },
+  "homepage": "https://github.com/Know-Your-Labor/data#readme",
+  "dependencies": {
+    "puppeteer": "^15.5.0"
+  }
+}
