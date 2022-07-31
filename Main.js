@@ -19,43 +19,50 @@ function get_data(link, extract) {
 }
 
 function get_brand_types() {
-    extract = () => {
+    let extract = () => {
         let ret = [];
-        let items = document.querySelectorAll('a');
-        items.forEach((item) => {
-            const title = item.getAttribute('title');
-            const url = item.getAttribute('href')
-            if(url && title) {
-                ret.push({
-                    url: url.trim(),
-                    title: title.trim(),
-                    description: title.replace('List of ', '').trim()
-                });
+        let table_of_contents = document.querySelectorAll("#toc > ul > * a");
+        console.log(table_of_contents);
+        table_of_contents.forEach( (title) => {
+            // filter out "See also" and "References"
+            let id = title.hash;
+            if(['#See_also', '#References', '#External_links'].includes(id)) {
+                return;
             }
+
+            // get all the links from each section
+            let query = document.querySelector(id);
+            let links = query.parentNode.nextElementSibling.nextElementSibling.querySelectorAll("a")
+            links.forEach( (link) => {
+                const title = link.getAttribute('title');
+                const url = link.getAttribute('href')
+                if(url && title) {
+                    ret.push({
+                        url: url.trim(),
+                        title: title.trim(),
+                        description: title.replace('List of ', '').trim()
+                    });
+                }
+            })
         });
-        const regex = new RegExp('List of.*brand.*', 'g');
-        ret = ret.filter((row) => row['url'] !== null && row['title'] !== null);
-        ret = ret.filter((row) => row['title'].match(regex));
         return ret;
     }
 
     get_data(base+"/wiki/Lists_of_brands", extract).then( (ret) => {
         console.log("Found " + ret.length + " brand types");
         ret.forEach( (brand_type) => {
-            setTimeout(function(){
-                get_brands(brand_type);
-            }, 1000);
+            console.log(brand_type);
+            // setTimeout(function(){
+            //     console.log(brand_type);
+            //     // get_brands(brand_type);
+            // }, 1000);
         })
     }).catch(console.error);
 }
 
 function get_brands(brand_type) {
     extract = () => {
-        let ret = [];
-        let table_of_contents = document.querySelectorAll("#toc > ul > * a")
-        // filter out "See also" and "References"
-        // get all the links from that section
-        document.querySelector("#Lists_of_brands").parentNode.nextElementSibling.nextElementSibling.querySelectorAll("a")
+
     }
 
     get_data(base+brand_type['url'], extract).then( (ret) => {
@@ -66,9 +73,9 @@ function get_brands(brand_type) {
     }).catch(console.error)
 }
 
-// get_brand_types()
-get_brands({
-    url: '/wiki/List_of_brand_name_snack_foods',
-    title: 'List of brand name snack foods',
-    description: 'brand name snack foods'
-})
+get_brand_types()
+// get_brands({
+//     url: '/wiki/List_of_brand_name_snack_foods',
+//     title: 'List of brand name snack foods',
+//     description: 'brand name snack foods'
+// })
