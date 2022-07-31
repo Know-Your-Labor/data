@@ -1,14 +1,20 @@
 const { resolve } = require('path');
+const fs = require('fs');
+const { Console } = require('node:console');
 const puppeteer = require('puppeteer');
 
 const base = 'https://en.wikipedia.org/';
+
+// const output = fs.createWriteStream('./stdout.log');
+// const errorOutput = fs.createWriteStream('./stderr.log');
+// const console = new Console({ stdout: output, stderr: errorOutput });
 
 function pause(milliseconds) {
 	var dt = new Date();
 	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }
 }
 
-function get_data(link, extract) {
+async function get_data(link, extract) {
     return new Promise(async (resolve, reject) => {
         try {
             const browser = await puppeteer.launch();
@@ -28,7 +34,6 @@ function extract() {
     let table_of_contents = []
     table_of_contents.push(...document.querySelectorAll("#toc > ul > * a"));
     table_of_contents.push(...document.querySelectorAll("#toc > div > ul > * a"));
-    console.log(table_of_contents);
     table_of_contents.forEach( (title) => {
         // filter out "See also" and "References"
         let id = title.hash;
@@ -58,29 +63,29 @@ function extract() {
     return ret;
 }
 
-function get_brand_types() {
-    get_data(base+"/wiki/Lists_of_brands", extract).then( (ret) => {
+async function get_brand_types() {
+    return await get_data(base+"/wiki/Lists_of_brands", extract).then( (ret) => {
         console.log("Found " + ret.length + " brand types");
-        ret.forEach( (brand_type) => {
-            console.log(brand_type['title']);
-            get_brands(brand_type);
-            pause(1000);
-        })
+        return ret;
     }).catch(console.error);
 }
 
-function get_brands(brand_type) {
-    get_data(base+brand_type['url'], extract).then( (ret) => {
-        console.log("Found " + ret.length + " " + brand_type['title']);
-        // ret.forEach( (brand) => {
-        //     console.log(brand);
-        // })
+async function get_brands(brand_type) {
+    // console.log(brand_type);
+    return await get_data(base+brand_type['url'], extract).then( (ret) => {
+        console.log("Found " + ret.length + " " + brand_type['title'].replace('List of ', ''));
+        return ret;
     }).catch(console.error)
 }
 
-get_brand_types()
-// get_brands({
-//     url: '/wiki/List_of_automotive_fuel_brands',
-//     title: 'List of brand name snack foods',
-//     description: 'brand name snack foods'
-// })
+async function run() {
+    brand_types = await get_brand_types()
+    for(var i = 0; i < brand_types.length; i++) {
+        await get_brands(brand_types[i]).then( (brands) => {
+            // console.log(brands);
+        });
+        pause(1500);
+    }
+}
+
+run()

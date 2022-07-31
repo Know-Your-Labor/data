@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "## Product metadata and list of controversies (wikipedia)",
   "main": "Main.js",
+  "engines" : { 
+    "npm" : ">=7.0.0",
+    "node" : ">=16.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
