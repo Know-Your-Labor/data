@@ -3,6 +3,8 @@ const extract_logic = require('./extraction');
 
 const base = 'https://en.wikipedia.org/';
 
+var history = []
+
 function pause(milliseconds) {
 	var dt = new Date();
 	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }
@@ -10,6 +12,10 @@ function pause(milliseconds) {
 
 async function get_data(link, extract) {
     return new Promise(async (resolve, reject) => {
+
+        if(history.includes(link)) return resolve([]);
+        else history.push(link);
+
         try {
             const browser = await puppeteer.launch();
             const page = await browser.newPage();
@@ -41,6 +47,7 @@ async function get_companies(brand) {
     let ret = await get_data(base+brand['url'], extract_logic.extract_company).catch(console.error);
     const ret_length = ret.length;
     for(var i = 0; i < ret_length; i++) {
+        pause(1000);
         let companies = await get_companies(ret[i])
         ret.push(...companies);
     }
@@ -62,9 +69,9 @@ async function run() {
         for(var ii = 0; ii < brands.length; ii++) {
             companies = await get_all_companies(brands[ii]);
             console.log(companies);
-            pause(2000);
+            pause(1000);
         }
-        pause(1500);
+        pause(1000);
     }
 }
 
