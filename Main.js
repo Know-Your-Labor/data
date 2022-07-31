@@ -28,15 +28,22 @@ function get_brand_types() {
                 title:  item.getAttribute('title'),
             });
         });
-        const regex = new RegExp('List of.*brands', 'g');
+        // const regex = new RegExp('List of.*brands', 'g');
         ret = ret.filter((row) => row['url'] !== null && row['title'] !== null);
-        ret = ret.filter((row) => row['title'].match(regex));
+        // ret = ret.filter((row) => row['title'].match(regex));
         return ret;
     }
 
     get_data(base+"/wiki/Lists_of_brands", extract).then( (ret) => {
-        console.log(ret);
-    }).catch(console.error)
+        console.log("Found " + ret.length + " brand types");
+        ret.forEach( (brand_type) => {
+            get_brands(brand_type);
+        })
+    }).catch(console.error);
+}
+
+function get_brands() {
+
 }
 
 get_brand_types()
