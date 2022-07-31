@@ -3,6 +3,11 @@ const puppeteer = require('puppeteer');
 
 const base = 'https://en.wikipedia.org/';
 
+function pause(milliseconds) {
+	var dt = new Date();
+	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }
+}
+
 function get_data(link, extract) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -18,64 +23,64 @@ function get_data(link, extract) {
     })
 }
 
-function get_brand_types() {
-    let extract = () => {
-        let ret = [];
-        let table_of_contents = document.querySelectorAll("#toc > ul > * a");
-        console.log(table_of_contents);
-        table_of_contents.forEach( (title) => {
-            // filter out "See also" and "References"
-            let id = title.hash;
-            if(['#See_also', '#References', '#External_links'].includes(id)) {
-                return;
-            }
+function extract() {
+    let ret = [];
+    let table_of_contents = []
+    table_of_contents.push(...document.querySelectorAll("#toc > ul > * a"));
+    table_of_contents.push(...document.querySelectorAll("#toc > div > ul > * a"));
+    console.log(table_of_contents);
+    table_of_contents.forEach( (title) => {
+        // filter out "See also" and "References"
+        let id = title.hash;
+        if(['#See_also', '#References', '#External_links'].includes(id)) {
+            return;
+        }
 
-            // get all the links from each section
-            let query = document.querySelector(id);
-            let links = query.parentNode.nextElementSibling.nextElementSibling.querySelectorAll("a")
-            links.forEach( (link) => {
-                const title = link.getAttribute('title');
-                const url = link.getAttribute('href')
-                if(url && title) {
-                    ret.push({
-                        url: url.trim(),
-                        title: title.trim(),
-                        description: title.replace('List of ', '').trim()
-                    });
-                }
-            })
+        // get all the links from each section
+        let first_query = document.querySelector(id)
+        if(!first_query) return;
+        let query = first_query.parentNode.nextElementSibling
+        let links = [];
+        links.push(...query.querySelectorAll("a"));
+        links.push(...query.nextElementSibling.querySelectorAll("a"));
+        links.push(...query.nextElementSibling.nextElementSibling.querySelectorAll("a"));
+        // links = query.nextElementSibling.querySelectorAll("a");
+        links.forEach( (link) => {
+            const title = link.getAttribute('title');
+            if(!title) return;
+            if(title.includes('Edit')) return;
+            ret.push({
+                url: link.getAttribute('href'),
+                title: title,
+            });
         });
-        return ret;
-    }
+    });
+    return ret;
+}
 
+function get_brand_types() {
     get_data(base+"/wiki/Lists_of_brands", extract).then( (ret) => {
         console.log("Found " + ret.length + " brand types");
         ret.forEach( (brand_type) => {
-            console.log(brand_type);
-            // setTimeout(function(){
-            //     console.log(brand_type);
-            //     // get_brands(brand_type);
-            // }, 1000);
+            console.log(brand_type['title']);
+            get_brands(brand_type);
+            pause(1000);
         })
     }).catch(console.error);
 }
 
 function get_brands(brand_type) {
-    extract = () => {
-
-    }
-
     get_data(base+brand_type['url'], extract).then( (ret) => {
-        console.log("Found " + ret.length + " " + brand_type['description']);
-        ret.forEach( (brand) => {
-            console.log(brand);
-        })
+        console.log("Found " + ret.length + " " + brand_type['title']);
+        // ret.forEach( (brand) => {
+        //     console.log(brand);
+        // })
     }).catch(console.error)
 }
 
 get_brand_types()
 // get_brands({
-//     url: '/wiki/List_of_brand_name_snack_foods',
+//     url: '/wiki/List_of_automotive_fuel_brands',
 //     title: 'List of brand name snack foods',
 //     description: 'brand name snack foods'
 // })
