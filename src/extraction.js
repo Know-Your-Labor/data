@@ -1,7 +1,8 @@
 
 module.exports = {
     extract,
-    extract_company
+    extract_company,
+    extract_controversy
 };
 
 function extract() {
@@ -49,6 +50,7 @@ function extract() {
 
 function extract_company() {
     let ret = [];
+    let seen = [];
 
     let company_selectors = [];
     company_selectors.push(document.evaluate("//th[contains(., 'Parent')]", document, null, XPathResult.ANY_TYPE, null ).iterateNext());
@@ -63,7 +65,6 @@ function extract_company() {
         company = company_selectors[i];
         if(company === null) continue;
         const links = company.nextElementSibling.querySelectorAll('a')
-        const text = company.nextElementSibling.innerText;
 
         links.forEach( (link) => {
             const link_title = link.getAttribute('title');
@@ -75,14 +76,62 @@ function extract_company() {
                 link_url.includes('/wiki/Wikipedia') ||
                 link_url.includes('.jpg') ||
                 link_url.includes('.png'))) return;
+
+            if(seen.includes(link_url)) return;
+
+            seen.push(link_url);
     
             ret.push({
                 url: link_url,
-                title: link_title,
-                text: text
+                title: link_title
             });
         })
     };
 
+    return ret;
+}
+
+function extract_controversy() {
+    let ret = [];
+    let selectors = []
+    selectors.push(...document.querySelectorAll("#Criticism"));
+    selectors.push(...document.querySelectorAll("#Incidents"));
+    selectors.push(...document.querySelectorAll("#Controversies"));
+    selectors.push(...document.querySelectorAll("#Controversy"));
+    selectors.push(...document.querySelectorAll("#Litigation"));
+    selectors.forEach( (section) => {
+        let query = section.parentNode.nextElementSibling;
+        let controversy_title = '';
+        let controversy_text = '';
+
+        while(!['H1', 'H2'].includes(query.tagName)) {
+
+            if(query.tagName === 'H3') {
+                if(controversy_title !== '') {
+                    ret.push({
+                        "title": controversy_title,
+                        "text": controversy_text
+                    });
+                }
+
+                controversy_text = '';
+                controversy_title = query.querySelector("span").textContent;
+            }
+
+            if(query.tagName === 'P') {
+                controversy_text += query.textContent;
+            }
+
+            query = query.nextElementSibling;
+        }
+
+        if(controversy_title !== '') {
+            ret.push({
+                "title": controversy_title,
+                "text": controversy_text
+            });
+        }
+
+    });
     return ret;
 }

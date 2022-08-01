@@ -20,8 +20,8 @@ async function get_brands(brand_type) {
 async function get_companies(brand) {
     let ret = await utils.get_data(base+brand['url'], extract_logic.extract_company).catch(console.error);
     const ret_length = ret.length;
+    console.log("Found " + ret.length + " companies for " + brand["title"])
     for(var i = 0; i < ret_length; i++) {
-        utils.pause(1000);
         let companies = await get_companies(ret[i])
         ret.push(...companies);
     }
@@ -29,21 +29,28 @@ async function get_companies(brand) {
 }
 
 async function get_all_companies(brand) {
-    return await get_companies(brand).then( (ret) => {
-        console.log("Found " + ret.length + " companies for " + brand["title"])
-        return ret
+    return await get_companies(brand).catch(console.error);
+}
+
+async function get_controversy(company) {
+    return await utils.get_data(base+company['url'], extract_logic.extract_controversy).then( (ret) => {
+        console.log("Found " + ret.length + " controversies for " + company['title']);
+        return ret;
     }).catch(console.error);
 }
 
 async function run() {
     brand_types = await get_brand_types()
-    for(var i = 0; i < brand_types.length; i++) {
+    for(var i = 50; i < brand_types.length; i++) {
         brands = await get_brands(brand_types[i])
+        if(!brands) continue
         for(var ii = 0; ii < brands.length; ii++) {
             companies = await get_all_companies(brands[ii]);
-            utils.pause(1250);
+            if(!companies) continue
+            for(var iii = 0; iii < companies.length; iii++) {
+                controversies = await get_controversy(companies[iii]);
+            }
         }
-        utils.pause(1500);
     }
 }
 

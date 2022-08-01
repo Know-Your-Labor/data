@@ -18,6 +18,11 @@ async function get_data(link, extract) {
         if(history.includes(link)) return resolve([]);
         else history.push(link);
 
+        if(link.includes("https://en.wikipedia.org/https://")) return resolve([]);
+        if(link.includes("https://en.wikipedia.org/http://")) return resolve([]);
+
+        pause(250);
+
         try {
             const browser = await puppeteer.launch();
             const page = await browser.newPage();
