@@ -42,7 +42,7 @@ async function get_controversy(company) {
 
 async function run() {
     brand_types = await get_brand_types()
-    for(var i = 50; i < brand_types.length; i++) {
+    for(var i = 0; i < brand_types.length; i++) {
         brands = await get_brands(brand_types[i])
         if(!brands) continue
         for(var ii = 0; ii < brands.length; ii++) {
