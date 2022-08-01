@@ -1,5 +1,6 @@
 const extract_logic = require('./extraction');
 const utils = require('./utils');
+const crud = require('./crud');
 
 const base = 'https://en.wikipedia.org/';
 
@@ -45,11 +46,23 @@ async function run() {
         brands = await get_brands(brand_types[i])
         if(!brands) continue
         for(var ii = 0; ii < brands.length; ii++) {
+            crud.add_brand(brands[ii], brand_types[i])
+
             brand_controversies = await get_controversy(brands[ii]);
+            brand_controversies.forEach( (controversy) => {
+                crud.add_brand_controversy(controversy, brands[ii]);
+            })
+
             companies = await get_all_companies(brands[ii]);
             if(!companies) continue
             for(var iii = 0; iii < companies.length; iii++) {
+                crud.add_company(companies[iii]);
+
                 controversies = await get_controversy(companies[iii]);
+
+                controversies.forEach( (controversy) => {
+                    crud.add_company_controversy(controversy, companies[iii]);
+                })
             }
         }
     }
