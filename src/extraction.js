@@ -69,7 +69,8 @@ function extract_company() {
         links.forEach( (link) => {
             const link_title = link.getAttribute('title');
             const link_url = link.getAttribute('href');
-            if(link_title && link_title.includes('Edit')) return;
+            if(!link_title) return;
+            if(link_title.includes('Edit')) return;
             if(
                 link_url && (
                 link_url.includes('action=edit') ||

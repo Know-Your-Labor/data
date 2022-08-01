@@ -1,4 +1,4 @@
-var mysql = require('mysql');
+var mysql = require("mysql");
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -13,6 +13,8 @@ con.connect(function(err) {
     connected = true;
 });
 
+var id = 0;
+
 module.exports = {
     add_company_controversy,
     add_brand_controversy,
@@ -22,40 +24,85 @@ module.exports = {
 
 function add_brand(brand, brand_type) {
     while(!connected) {/* do nothing */}
+    id += 1;
 
-    let sql = '';
+    let sql = "INSERT INTO know_your_labor.brand VALUES (" + id + ", '" + brand["url"] + "', '" + brand["title"].replaceAll("'", "") + "', '" + brand["section"].replaceAll("'", "") + "', '" + brand_type["section"].replaceAll("'", "") + "');";
+
     con.query(sql, function (err, result) {
         if (err) throw err;
-        console.log("Result: " + result);
     });
+
+    return id;
 }
 
 function add_company(company) {
     while(!connected) {/* do nothing */}
+    id += 1;
 
-    let sql = '';
+    let sql = "INSERT INTO know_your_labor.company VALUES (" + id + ", '" + company['url'] + "', '" + company['title'].replaceAll("'", "") + "');";
+
     con.query(sql, function (err, result) {
         if (err) throw err;
-        console.log("Result: " + result);
     });
+
+    return id;
+}
+
+function add_controversy(controversy, url) {
+    while(!connected) {/* do nothing */}
+    id += 1;
+
+    let child_labor = controversy['text'].toLowerCase().includes('child labor') ||
+        controversy['title'].toLowerCase().includes('child labor');;
+    let slavery = controversy['text'].toLowerCase().includes('slavery') || 
+        controversy['text'].toLowerCase().includes('forced labor') || 
+        controversy['title'].toLowerCase().includes('slavery') || 
+        controversy['title'].toLowerCase().includes('forced labor');
+    let strike = controversy['text'].toLowerCase().includes('strike') || 
+        controversy['text'].toLowerCase().includes('worker') || 
+        controversy['title'].toLowerCase().includes('strike') ||
+        controversy['title'].toLowerCase().includes('worker');
+    let environmental = controversy['text'].toLowerCase().includes('environment') ||
+        controversy['title'].toLowerCase().includes('environment');
+
+    child_labor = child_labor.toString().toUpperCase();
+    slavery = slavery.toString().toUpperCase();
+    strike = strike.toString().toUpperCase();
+    environmental = environmental.toString().toUpperCase();
+
+    let sql = "INSERT INTO know_your_labor.controversy VALUES (" + id + ", '" + url + "', '" + controversy['title'].replaceAll("'", "") + "', '" + controversy['text'].replaceAll("'", "") + "', " + child_labor + ", " + slavery + ", " + strike + ", " + environmental + ");";
+
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+    });
+
+    return id;
 }
 
 function add_company_controversy(controversy, company) {
     while(!connected) {/* do nothing */}
 
-    let sql = '';
+    let controversy_id = add_controversy(controversy, brand['url']);
+
+    let sql = "INSERT INTO know_your_labor.company_controversy VALUES (" + company["id"] + ", " + controversy_id +");";
+    
     con.query(sql, function (err, result) {
         if (err) throw err;
-        console.log("Result: " + result);
     });
+
+    return id;
 }
 
 function add_brand_controversy(controversy, brand) {
     while(!connected) {/* do nothing */}
 
-    let sql = '';
+    let controversy_id = add_controversy(controversy, brand['url']);
+
+    let sql = "INSERT INTO know_your_labor.brand_controversy VALUES (" + brand["id"] + ", " + controversy_id +");";
+
     con.query(sql, function (err, result) {
         if (err) throw err;
-        console.log("Result: " + result);
     });
+
+    return id;
 }

@@ -21,7 +21,7 @@ async function get_data(link, extract) {
         if(link.includes("https://en.wikipedia.org/https://")) return resolve([]);
         if(link.includes("https://en.wikipedia.org/http://")) return resolve([]);
 
-        pause(250);
+        pause(500);
 
         try {
             const browser = await puppeteer.launch();

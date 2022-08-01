@@ -42,11 +42,11 @@ async function get_controversy(company) {
 
 async function run() {
     brand_types = await get_brand_types()
-    for(var i = 0; i < brand_types.length; i++) {
+    for(var i = 50; i < brand_types.length; i++) {
         brands = await get_brands(brand_types[i])
         if(!brands) continue
         for(var ii = 0; ii < brands.length; ii++) {
-            crud.add_brand(brands[ii], brand_types[i])
+            brands[ii]["id"] = crud.add_brand(brands[ii], brand_types[i])
 
             brand_controversies = await get_controversy(brands[ii]);
             brand_controversies.forEach( (controversy) => {
@@ -56,7 +56,7 @@ async function run() {
             companies = await get_all_companies(brands[ii]);
             if(!companies) continue
             for(var iii = 0; iii < companies.length; iii++) {
-                crud.add_company(companies[iii]);
+                companies[iii]["id"] = crud.add_company(companies[iii]);
 
                 controversies = await get_controversy(companies[iii]);
 
