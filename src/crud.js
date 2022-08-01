@@ -19,15 +19,28 @@ module.exports = {
     add_company_controversy,
     add_brand_controversy,
     add_company,
-    add_brand
+    add_brand,
+    add_brand_company
 }
 
 function add_brand(brand, brand_type) {
     while(!connected) {/* do nothing */}
     id += 1;
 
-    let sql = "INSERT INTO know_your_labor.brand VALUES (" + id + ", '" + brand["url"] + "', '" + brand["title"].replaceAll("'", "") + "', '" + brand["section"].replaceAll("'", "") + "', '" + brand_type["section"].replaceAll("'", "") + "');";
+    let sql = "INSERT INTO know_your_labor.brand VALUES (" + id + ", '" + brand["url"].replaceAll("'", "%27") + "', '" + brand["title"].replaceAll("'", "") + "', '" + brand["section"].replaceAll("'", "") + "', '" + brand_type["section"].replaceAll("'", "") + "');";
 
+    con.query(sql, function (err, result) {
+        if (err) throw err;
+    });
+
+    return id;
+}
+
+function add_brand_company(brand, company) {
+    while(!connected) {/* do nothing */}
+
+    let sql = "INSERT INTO know_your_labor.brand_company VALUES (" + brand["id"] + ", " + company["id"] +");";
+    
     con.query(sql, function (err, result) {
         if (err) throw err;
     });
@@ -39,7 +52,7 @@ function add_company(company) {
     while(!connected) {/* do nothing */}
     id += 1;
 
-    let sql = "INSERT INTO know_your_labor.company VALUES (" + id + ", '" + company['url'] + "', '" + company['title'].replaceAll("'", "") + "');";
+    let sql = "INSERT INTO know_your_labor.company VALUES (" + id + ", '" + company['url'].replaceAll("'", "%27") + "', '" + company['title'].replaceAll("'", "") + "');";
 
     con.query(sql, function (err, result) {
         if (err) throw err;
@@ -70,7 +83,7 @@ function add_controversy(controversy, url) {
     strike = strike.toString().toUpperCase();
     environmental = environmental.toString().toUpperCase();
 
-    let sql = "INSERT INTO know_your_labor.controversy VALUES (" + id + ", '" + url + "', '" + controversy['title'].replaceAll("'", "") + "', '" + controversy['text'].replaceAll("'", "") + "', " + child_labor + ", " + slavery + ", " + strike + ", " + environmental + ");";
+    let sql = "INSERT INTO know_your_labor.controversy VALUES (" + id + ", '" + url.replaceAll("'", "%27") + "', '" + controversy['title'].replaceAll("'", "") + "', '" + controversy['text'].replaceAll("'", "") + "', " + child_labor + ", " + slavery + ", " + strike + ", " + environmental + ");";
 
     con.query(sql, function (err, result) {
         if (err) throw err;

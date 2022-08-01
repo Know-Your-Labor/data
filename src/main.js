@@ -57,6 +57,7 @@ async function run() {
             if(!companies) continue
             for(var iii = 0; iii < companies.length; iii++) {
                 companies[iii]["id"] = crud.add_company(companies[iii]);
+                crud.add_brand_company(brands[ii], companies[iii]);
 
                 controversies = await get_controversy(companies[iii]);
 
